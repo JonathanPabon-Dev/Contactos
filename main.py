@@ -16,7 +16,7 @@ def save_json_file(data:list):
     """Saves a JSON file."""
     filename = "contacts.json"
     with open(filename, "w") as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
 
 def view_all_contacts(contacts) -> list:
     """Displays all contacts list order by lastname."""
@@ -154,8 +154,10 @@ def edit_contact():
                 print("Contact not found.")
         
         elif choice == "2":
-            print("Search contact...")
-            pass
+            print("Searching contacts...")
+            contacts_list,go_back = search_contact()
+            if go_back == False:
+                view_all_contacts(contacts_list)
         
         elif choice == "0":
             return
@@ -167,12 +169,49 @@ def validate_id(contact_id:str) -> bool:
         return False
     return True
         
-def delete_contact(data, id):
+def delete_contact():
     """Deletes a person from the data list."""
-    for index, row in enumerate(data):
-        if row["id"] == id:
-            del data[index]
-            break
+    while True:
+        print("---")
+        print("To delete a contact, you need the id.")
+        print("1. Enter the contact id.")
+        print("2. Search contact.")
+        print("0. Back to main menu.")
+        print("---")
+        choice = input("Enter your choice: ")
+        # Validate the user's choice.
+        while choice not in ["1", "2", "0"]:
+            print("Invalid choice.")
+            choice = input("Enter your choice: ")
+            
+        # Perform the selected action.
+        if choice == "1":
+            contact_id = input("Enter contact id: ")
+            while validate_id(contact_id) == False:
+                print("Invalid format id.")
+                choice = input("Enter contact id: ")
+            contact_list = read_json_file()
+            if len(search_contact_by_id(contact_id)) == 1:
+                for idx, obj in enumerate(contact_list):
+                    if obj['id'] == contact_id:
+                        contact_list.pop(idx)
+                # Return the updated list of contacts.
+                save_json_file(contact_list)
+                print("Contact deleted.")
+                break
+            else:
+                print("Contact not found.")
+        
+        elif choice == "2":
+            print("Searching contacts...")
+            contacts_list,go_back = search_contact()
+            if go_back == False:
+                view_all_contacts(contacts_list)
+        
+        elif choice == "0":
+            return
+        
+        input("Press enter to continue...")
 
 def edit_menu(contact:dict) -> dict:
     """Displays one by one the fields to edit the contact.
